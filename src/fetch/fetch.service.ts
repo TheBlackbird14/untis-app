@@ -56,7 +56,7 @@ export class FetchService implements OnModuleInit, OnModuleDestroy {
 
             const check = await this.dbService.getByID(element.id)
             if (check !== null) {
-                console.log('skipped');
+                //console.log('skipped');
                 
                 return;
             }
