@@ -7,7 +7,7 @@ import { HomeworkData } from './untis-api.interface';
 
 
 @Injectable()
-export class FetchService implements OnModuleInit, OnModuleDestroy {
+export class FetchService {
     
     constructor(
         private dbService: DatabaseService
@@ -15,17 +15,16 @@ export class FetchService implements OnModuleInit, OnModuleDestroy {
 
     untis: WebUntis;
 
-    async onModuleInit() {
-        this.untis = new WebUntis('aloisiuskolleg', 'JesselMika', 'Bonn#2023', 'peleus.webuntis.com');
+
+    async importHomework(username: string, password: string) {
+
+        const now = new Date()
+        console.log(`--${now.toISOString()}--> Loading Data in to DB`);
+
+        this.untis = new WebUntis('aloisiuskolleg', username, password, 'peleus.webuntis.com');
 
         await this.untis.login();
-    }
-     async onModuleDestroy() {
-         await this.untis.logout();
-     }
 
-    async importHomework() {
-        const now = new Date();
         const then = new Date();
         then.setFullYear(now.getFullYear() + 1);
 
@@ -54,9 +53,13 @@ export class FetchService implements OnModuleInit, OnModuleDestroy {
 
         parsedData.homeworks.forEach(async element => {
 
-            const check = await this.dbService.getByID(element.id)
-            if (check !== null) {
-                //console.log('skipped');
+            const check = await this.dbService.getHomeworkByID(element.id)
+            if (check !== null) { // homework exists in db
+
+                const homeworkEntry = new Homework()
+                homeworkEntry.id = element.id
+
+                this.dbService.createHomeworkEntry(username, homeworkEntry);
                 
                 return;
             }
@@ -65,11 +68,13 @@ export class FetchService implements OnModuleInit, OnModuleDestroy {
 
             homeworkEntry.id = element.id;
             homeworkEntry.text = element.text;
-            homeworkEntry.completed = element.completed;
             homeworkEntry.remark = element.remark;
+            homeworkEntry.students = [];
 
             homeworkEntry.dateAdded = Base.convertUntisDate(element.date.toString());
             homeworkEntry.dateDue = Base.convertUntisDate(element.dueDate.toString());
+
+
 
             const index = mappingArray.findIndex( item => item.homeworkId === homeworkEntry.id);
             mappingArray[index].lessonId = element.lessonId;
@@ -86,8 +91,13 @@ export class FetchService implements OnModuleInit, OnModuleDestroy {
                 }
             });
 
-            this.dbService.createEntry(homeworkEntry);
+            //console.log(homeworkEntry);
+            
+            this.dbService.createHomeworkEntry(username, homeworkEntry);
 
+            this.untis.logout();
+
+            
         });
 
     }

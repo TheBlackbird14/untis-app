@@ -1,5 +1,7 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { HomeworkState } from "src/database/homework-state.entity";
 import { Homework } from "src/database/homework.entity";
+import { UntisUser } from "src/database/user.entity";
 
 export const typeOrmConfig: TypeOrmModuleOptions = 
 {
@@ -10,7 +12,7 @@ export const typeOrmConfig: TypeOrmModuleOptions =
     username: 'untis',
     password: '',
     database: 'untis',
-    entities: [Homework],
+    entities: [Homework, UntisUser, HomeworkState],
     synchronize: true
   
 }

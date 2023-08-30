@@ -19,12 +19,11 @@ export class Homework {
     remark?: string;
 
     @Column()
-    completed: boolean;
+    teacher: string;
 
     @Column()
-    teacher: string
+    subject: string;
 
-    @Column()
-    subject: string
-
+    @Column("int", { array: true, nullable: false, default: [] })
+    students: number[] = []
 }
