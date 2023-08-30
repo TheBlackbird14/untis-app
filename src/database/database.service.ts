@@ -18,10 +18,10 @@ export class DatabaseService {
         private homeworkStateRepository: Repository<HomeworkState>
     ) { }
 
-    createUser(username: string) {
+    async createUser(username: string) {
         const user = new UntisUser();
         user.username = username;
-        this.userRepository.insert(user);
+        await this.userRepository.insert(user);
     }
 
     async getUserByUsername(username: string): Promise<UntisUser | null> {
@@ -162,7 +162,7 @@ export class DatabaseService {
                 .createQueryBuilder('homework_state')
                 .select('homework_state.completed')
                 .where('homework_state.homeworkId = :homeworkid', { homeworkid: id })
-                .where('homework_state.userId = :userid', { userid: user.id })
+                .andWhere('homework_state.userId = :userid', { userid: user.id })
                 .getOne()
             
             return result.completed

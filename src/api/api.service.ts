@@ -29,7 +29,7 @@ export class ApiService {
                 //console.log('user not yet registered');
                 
 
-                this.dbService.createUser(username);
+                await this.dbService.createUser(username);
                 
             } else {
                 //console.log('user already registered');
@@ -70,7 +70,7 @@ export class ApiService {
                 //console.log('user not yet registered');
                 
 
-                this.dbService.createUser(username);
+                await this.dbService.createUser(username);
                 
             } else {
                 //console.log('user already registered');
