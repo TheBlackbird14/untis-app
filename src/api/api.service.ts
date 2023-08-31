@@ -28,9 +28,11 @@ export class ApiService {
 
                 //console.log('user not yet registered');
                 
-
-                await this.dbService.createUser(username);
+                const now = new Date()
+                console.log(`--${now.toISOString()}--> Creating new user ${username}`);
                 
+                await this.dbService.createUser(username);
+
             } else {
                 //console.log('user already registered');
             }
@@ -69,6 +71,8 @@ export class ApiService {
 
                 //console.log('user not yet registered');
                 
+                const now = new Date()
+                console.log(`--${now.toISOString()}--> Creating new user ${username}`);
 
                 await this.dbService.createUser(username);
                 

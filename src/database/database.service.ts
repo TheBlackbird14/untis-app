@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 import { Homework } from './homework.entity';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { UntisUser } from './user.entity';
@@ -21,7 +21,14 @@ export class DatabaseService {
     async createUser(username: string) {
         const user = new UntisUser();
         user.username = username;
-        await this.userRepository.insert(user);
+        
+        try {
+            await this.userRepository.insert(user);
+        } catch (error) {
+            console.log(`error creating user: ${error}`);
+            throw new HttpErrorByCode[500]
+        }
+
     }
 
     async getUserByUsername(username: string): Promise<UntisUser | null> {
@@ -34,7 +41,10 @@ export class DatabaseService {
             .getOneOrFail()
             ;
         } catch (error) {
-            console.log(`user not found: ${error}`);
+            
+            if (error === !EntityNotFoundError) {
+                console.log(`error finding user: ${error}`);
+            }
             
             return null;
         }
