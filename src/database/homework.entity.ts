@@ -1,29 +1,28 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Homework {
+  @PrimaryColumn()
+  id: number;
 
-    @PrimaryColumn()
-    id: number;
+  @Column()
+  dateAdded: Date;
 
-    @Column()
-    dateAdded: Date;
+  @Column()
+  dateDue: Date;
 
-    @Column()
-    dateDue: Date;
+  @Column()
+  text: string;
 
-    @Column()
-    text: string;
+  @Column()
+  remark: string;
 
-    @Column()
-    remark?: string;
+  @Column()
+  teacher: string;
 
-    @Column()
-    teacher: string;
+  @Column()
+  subject: string;
 
-    @Column()
-    subject: string;
-
-    @Column("int", { array: true, nullable: false, default: [] })
-    students: number[] = []
+  @Column('int', { array: true, nullable: false, default: [] })
+  students: number[] = [];
 }

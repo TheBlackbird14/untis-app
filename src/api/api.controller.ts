@@ -1,41 +1,70 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Put, Req, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Req,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiService } from './api.service';
-import { Homework } from 'src/database/homework.entity';
 import { MarkCompleted } from './completion.dto';
 import { HomeworkDto } from './homework.dto';
+import { createHomeworkDto } from './create-homework.dto';
 
 @Controller('api')
 export class ApiController {
+  constructor(private apiService: ApiService) {}
 
-    constructor(
-        private apiService: ApiService
-    ) { }
+  @Get('homework/load')
+  async loadHomework(@Req() request: Request) {
+    // Accessing headers for authentication information
+    const authHeader = request.headers['authorization'];
 
-    @Get('homework/load')
-    async loadHomework(@Req() request: Request) {
+    await this.apiService.loadHomework(authHeader);
+  }
 
-        // Accessing headers for authentication information
-        const authHeader = request.headers['authorization'];
+  @Get('homework/all')
+  async getAllHomework(@Req() request: Request): Promise<HomeworkDto[]> {
+    // Accessing headers for authentication information
+    const authHeader = request.headers['authorization'];
 
-        await this.apiService.loadHomework(authHeader);
-    }
+    return await this.apiService.getAllHomework(authHeader);
+  }
 
-    @Get('homework/all')
-    async getAllHomework(@Req() request: Request): Promise<HomeworkDto[]> {
+  @Put('homework/:id')
+  async markCompleted(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body(new ValidationPipe({ transform: true })) markCompleted: MarkCompleted,
+    @Req() request: Request,
+  ) {
+    // Accessing headers for authentication information
+    const authHeader = request.headers['authorization'];
 
-        // Accessing headers for authentication information
-        const authHeader = request.headers['authorization'];
+    await this.apiService.updateEntry(authHeader, id, markCompleted);
+  }
 
-        return await this.apiService.getAllHomework(authHeader);
-    }
+  @Post('homework/create')
+  async createHomework(
+    @Body(/* new ValidationPipe({ transform: true }) */)
+    homework: createHomeworkDto,
+    @Req() request: Request,
+  ) {
+    // Accessing headers for authentication information
+    const authHeader = request.headers['authorization'];
 
-    @Put('homework/:id')
-    async markCompleted(@Param('id', new ParseIntPipe()) id: number, @Body(new ValidationPipe({ transform: true })) markCompleted: MarkCompleted, @Req() request: Request) {
+    await this.apiService.createHomework(homework, authHeader);
+  }
 
-        // Accessing headers for authentication information
-        const authHeader = request.headers['authorization'];
-        
-        await this.apiService.updateEntry(authHeader, id, markCompleted)
-    }
+  @Get('homework/delete/:id')
+  async deleteEntry(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Req() request: Request,
+  ) {
+    const authHeader = request.headers['authorization'];
 
+    await this.apiService.deleteEntry(id, authHeader);
+  }
 }

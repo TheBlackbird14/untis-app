@@ -6,8 +6,8 @@ import { UntisUser } from './user.entity';
 import { HomeworkState } from './homework-state.entity';
 
 @Module({
-  imports: [ TypeOrmModule.forFeature([Homework, UntisUser, HomeworkState]) ],
+  imports: [TypeOrmModule.forFeature([Homework, UntisUser, HomeworkState])],
   providers: [DatabaseService],
-  exports: [DatabaseService]
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}
