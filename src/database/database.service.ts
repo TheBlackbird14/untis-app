@@ -249,6 +249,12 @@ export class DatabaseService {
         .delete()
         .where('homework.id = :id', { id })
         .execute();
+
+      await this.homeworkStateRepository
+        .createQueryBuilder()
+        .delete()
+        .where('homeworkId = :hwid', { hwid: id })
+        .execute();
     } catch (error) {
       console.log(`failed to delete entry: ${error}`);
       throw new HttpErrorByCode[500]();
