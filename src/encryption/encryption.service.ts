@@ -16,7 +16,7 @@ export class EncryptionService {
       );
     } catch (e) {
       console.log(e.message);
-      throw new HttpException('Encryption Error', 500);
+      throw new HttpException('Bad Encryption', 400);
     }
     let decrypted = decipher.update(ciphertext, 'hex', 'utf-8');
     decrypted += decipher.final('utf-8');
