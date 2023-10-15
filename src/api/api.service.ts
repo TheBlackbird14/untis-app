@@ -61,7 +61,7 @@ export class ApiService {
       //const [, authValue] = authHeader.split(' ');
       const decodedAuth = Buffer.from(authHeader, 'base64').toString('utf-8');
       const [username, password] = decodedAuth.split(':');
-      return [username, password];
+      return [username.trim(), password];
     } else {
       throw new HttpException('No auth supplied.', HttpStatus.FORBIDDEN);
     }
