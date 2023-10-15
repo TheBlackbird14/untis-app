@@ -156,7 +156,7 @@ export class ApiService {
       await untis.login();
     } catch (error) {
       console.log(
-        `--${now.toISOString()}--> Auth Failed: ${username}/* , ${password} */`,
+        `--${now.toISOString()}--> Auth Failed for user: ${username}`,
       );
       return false;
     }
