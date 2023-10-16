@@ -48,7 +48,7 @@ export class ApiController {
 
   @Post('homework/create')
   async createHomework(
-    @Body(/* new ValidationPipe({ transform: true }) */)
+    @Body(new ValidationPipe({ transform: true }))
     homework: createHomeworkDto,
     @Req() request: Request,
   ) {
