@@ -1,9 +1,11 @@
-import { IsDateString, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 
 export class createHomeworkDto {
   @IsString()
+  @IsNotEmpty()
   subject: string;
 
+  @IsNotEmpty()
   @IsString()
   teacher: string;
 
@@ -11,5 +13,6 @@ export class createHomeworkDto {
   text: string;
 
   @IsDateString()
+  @IsNotEmpty()
   dateDue: Date;
 }
