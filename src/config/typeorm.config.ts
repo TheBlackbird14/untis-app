@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { HomeworkState } from 'src/database/homework-state.entity';
 import { Homework } from 'src/database/homework.entity';
 import { UntisUser } from 'src/database/user.entity';
+import { UserAnalytics } from '../middleware/user-analytics.entity';
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -10,6 +11,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: 'untis',
   password: '',
   database: 'untis',
-  entities: [Homework, UntisUser, HomeworkState],
+  entities: [Homework, UntisUser, HomeworkState, UserAnalytics],
   synchronize: true,
 };
