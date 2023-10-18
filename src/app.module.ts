@@ -21,6 +21,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ActivityMiddleware } from './middleware/activity.middleware';
 import { ApiService } from './api/api.service';
 import { UserAnalytics } from './middleware/user-analytics.entity';
+import {MiddlewareModule} from "./middleware/middleware.module";
 
 @Module({
   controllers: [AppController],
@@ -34,8 +35,9 @@ import { UserAnalytics } from './middleware/user-analytics.entity';
     EncryptionModule,
     ConfigModule,
     ConfigModule.forRoot(),
+    MiddlewareModule,
   ],
-  providers: [AppService, CronService, EncryptionService, ApiService],
+  providers: [AppService, CronService, EncryptionService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

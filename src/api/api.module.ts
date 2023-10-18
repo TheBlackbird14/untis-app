@@ -10,5 +10,6 @@ import {UserAnalytics} from "../middleware/user-analytics.entity";
   controllers: [ApiController],
   providers: [ApiService],
   imports: [FetchModule, DatabaseModule, EncryptionModule],
+  exports: [ApiService],
 })
 export class ApiModule {}
