@@ -61,6 +61,12 @@ export class ApiService {
       //const [, authValue] = authHeader.split(' ');
       const decodedAuth = Buffer.from(authHeader, 'base64').toString('utf-8');
       const [username, password] = decodedAuth.split(':');
+
+      //check if username has two capital letters
+      if (username.match(/[A-Z]/g)?.length !== 2) {
+        throw new HttpException('username invalid', 403);
+      }
+
       return [username.trim(), password];
     } else {
       throw new HttpException('No auth supplied.', HttpStatus.FORBIDDEN);

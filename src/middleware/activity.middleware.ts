@@ -76,7 +76,6 @@ export class ActivityMiddleware implements NestMiddleware {
       user = await this.userAnalyticRepository.findOneBy({
         username: credentials[0],
       });
-      console.log(user);
     } catch (error) {
       console.log(`error finding Analytic user: ${error}`);
       throw new HttpErrorByCode[500]();
