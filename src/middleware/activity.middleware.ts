@@ -34,9 +34,13 @@ export class ActivityMiddleware implements NestMiddleware {
 
     if (user === null) {
       const new_user = new UserAnalytics();
-      new_user.id = (
-        await this.databaseService.getUserByUsername(credentials[0])
-      ).id;
+      
+      try {
+	      new_user.id = (await this.databaseService.getUserByUsername(credentials[0])).id
+      } catch (error) {
+	      next()
+      }
+      
       new_user.username = credentials[0];
 
       try {
