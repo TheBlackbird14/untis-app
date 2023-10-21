@@ -63,11 +63,8 @@ export class ApiService {
       const [username, password] = decodedAuth.split(':');
 
       //check if username has two capital letters
-      if (username.match(/[A-Z]/g)?.length !== 2) {
-        throw new HttpException('username invalid', 403);
-      }
 
-      return [username.trim(), password];
+      return [username.toLowerCase(), password];
     } else {
       throw new HttpException('No auth supplied.', HttpStatus.FORBIDDEN);
     }
