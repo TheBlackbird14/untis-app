@@ -19,9 +19,8 @@ import { EncryptionModule } from './encryption/encryption.module';
 import { ConfigModule } from '@nestjs/config';
 
 import { ActivityMiddleware } from './middleware/activity.middleware';
-import { ApiService } from './api/api.service';
 import { UserAnalytics } from './middleware/user-analytics.entity';
-import {MiddlewareModule} from "./middleware/middleware.module";
+import { MiddlewareModule } from './middleware/middleware.module';
 
 @Module({
   controllers: [AppController],

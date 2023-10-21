@@ -34,13 +34,15 @@ export class ActivityMiddleware implements NestMiddleware {
 
     if (user === null) {
       const new_user = new UserAnalytics();
-      
+
       try {
-	      new_user.id = (await this.databaseService.getUserByUsername(credentials[0])).id
+        new_user.id = (
+          await this.databaseService.getUserByUsername(credentials[0])
+        ).id;
       } catch (error) {
-	      next()
+        next();
       }
-      
+
       new_user.username = credentials[0];
 
       try {
@@ -77,7 +79,7 @@ export class ActivityMiddleware implements NestMiddleware {
     }
 
     try {
-      user = await this.userAnalyticRepository.findOneBy({
+      await this.userAnalyticRepository.findOneBy({
         username: credentials[0],
       });
     } catch (error) {
