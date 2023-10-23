@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FetchModule } from './fetch/fetch.module';
@@ -13,6 +18,10 @@ import { EncryptionService } from './encryption/encryption.service';
 import { EncryptionModule } from './encryption/encryption.module';
 import { ConfigModule } from '@nestjs/config';
 
+import { ActivityMiddleware } from './middleware/activity.middleware';
+import { UserAnalytics } from './middleware/user-analytics.entity';
+import { MiddlewareModule } from './middleware/middleware.module';
+
 @Module({
   controllers: [AppController],
   imports: [
@@ -20,11 +29,24 @@ import { ConfigModule } from '@nestjs/config';
     ApiModule,
     DatabaseModule,
     TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forFeature([UserAnalytics]),
     ScheduleModule.forRoot(),
     EncryptionModule,
     ConfigModule,
     ConfigModule.forRoot(),
+    MiddlewareModule,
   ],
   providers: [AppService, CronService, EncryptionService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ActivityMiddleware)
+      .forRoutes(
+        { path: 'api/homework/all', method: RequestMethod.GET },
+        { path: '/api/homework/:id', method: RequestMethod.PUT },
+        { path: '/api/homework/create', method: RequestMethod.POST },
+        { path: 'api/homework/delete/:id', method: RequestMethod.GET },
+      );
+  }
+}
