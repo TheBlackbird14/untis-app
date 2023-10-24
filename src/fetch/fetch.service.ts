@@ -3,6 +3,9 @@ import { Base, WebUntis } from 'webuntis';
 import { DatabaseService } from 'src/database/database.service';
 import { Homework, Homework as homework } from 'src/database/homework.entity';
 import { HomeworkData } from './untis-api.interface';
+import { getFoodItems } from 'inetmenue';
+import { FoodData } from './inetmenue-api.interface';
+import { FoodSchedule } from '../database/food-schedule.entity';
 
 @Injectable()
 export class FetchService {
@@ -92,6 +95,48 @@ export class FetchService {
       await this.dbService.createHomeworkEntry(username, homeworkEntry);
 
       await this.untis.logout();
+    }
+  }
+
+  async importFood(calendarWeek: string) {
+    const foodItems = await getFoodItems({ kw: calendarWeek, source: 'ako' });
+
+    const parsedData: FoodData[] = JSON.parse(JSON.stringify(foodItems));
+
+    const foodSchedule: FoodSchedule[] = [];
+
+    parsedData.forEach((element) => {
+      if (element.title === 'Menü mit Spätbucheraufschlag') return;
+
+      const entry = new FoodSchedule();
+
+      entry.text = element.title;
+
+      const dateString = element.dayLong.split(',')[1];
+
+      //covert date string "dd.mm.yyyy" to Date object
+      const date = new Date();
+      date.setDate(parseInt(dateString.split('.')[0]));
+      date.setMonth(parseInt(dateString.split('.')[1]) - 1);
+      date.setFullYear(parseInt(dateString.split('.')[2]));
+
+      //set time to 13:15
+      date.setHours(13);
+      date.setMinutes(15);
+      date.setSeconds(0);
+      date.setMilliseconds(0);
+
+      entry.date = date;
+
+      foodSchedule.push(entry);
+    });
+
+    if ((await this.dbService.getFoodSchedule()).length > 0) {
+      console.log('renewing food schedule');
+      await this.dbService.renewFoodSchedule(foodSchedule);
+    } else {
+      console.log('storing food schedule');
+      await this.dbService.storeFoodSchedule(foodSchedule);
     }
   }
 }

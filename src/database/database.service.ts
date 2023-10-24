@@ -5,6 +5,7 @@ import { Homework } from './homework.entity';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { UntisUser } from './user.entity';
 import { HomeworkState } from './homework-state.entity';
+import { FoodSchedule } from './food-schedule.entity';
 
 @Injectable()
 export class DatabaseService {
@@ -15,6 +16,8 @@ export class DatabaseService {
     private userRepository: Repository<UntisUser>,
     @InjectRepository(HomeworkState)
     private homeworkStateRepository: Repository<HomeworkState>,
+    @InjectRepository(FoodSchedule)
+    private foodScheduleRepository: Repository<FoodSchedule>,
   ) {}
 
   async createUser(username: string) {
@@ -257,6 +260,46 @@ export class DatabaseService {
         .execute();
     } catch (error) {
       console.log(`failed to delete entry: ${error}`);
+      throw new HttpErrorByCode[500]();
+    }
+  }
+
+  async storeFoodSchedule(entries: FoodSchedule[]) {
+    try {
+      await this.foodScheduleRepository.insert(entries);
+    } catch (error) {
+      console.log(`failed to store food entries: ${error}`);
+      throw new HttpErrorByCode[500]();
+    }
+  }
+
+  async getFoodSchedule(): Promise<FoodSchedule[]> {
+    try {
+      return await this.foodScheduleRepository
+        .createQueryBuilder('food_schedule')
+        .select()
+        .getMany();
+    } catch (error) {
+      console.log(`failed to get food entries: ${error}`);
+      throw new HttpErrorByCode[500]();
+    }
+  }
+
+  async renewFoodSchedule(entries: FoodSchedule[]) {
+    try {
+      let counter = 1;
+      for (const element of entries) {
+        //set column text and date to new value where id=i
+        await this.foodScheduleRepository
+          .createQueryBuilder()
+          .update(FoodSchedule)
+          .set({ text: element.text, date: element.date })
+          .where('id = :i', { i: counter })
+          .execute();
+        counter++;
+      }
+    } catch (error) {
+      console.log(`failed to renew food entries: ${error}`);
       throw new HttpErrorByCode[500]();
     }
   }
