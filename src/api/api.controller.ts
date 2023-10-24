@@ -68,3 +68,8 @@ export class ApiController {
     await this.apiService.deleteEntry(id, authHeader);
   }
 }
+
+@Controller('api/food')
+export class FoodApiController {
+  constructor(private apiService: ApiService) {}
+}
