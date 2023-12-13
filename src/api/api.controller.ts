@@ -72,4 +72,14 @@ export class ApiController {
 @Controller('api/food')
 export class FoodApiController {
   constructor(private apiService: ApiService) {}
+
+  @Get('load')
+  async loadFoodSchedule() {
+    await this.apiService.loadFoodSchedule();
+  }
+
+  @Get('latest')
+  async getLatestFoodSchedule() {
+    return await this.apiService.getFoodSchedule();
+  }
 }
