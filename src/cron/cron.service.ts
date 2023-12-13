@@ -38,8 +38,6 @@ export class CronService {
 
     const weekString = now.getFullYear() + 'W' + weekNumber;
 
-    console.log(weekString);
-
     await this.fetchService.importFood(weekString);
   }
 }
