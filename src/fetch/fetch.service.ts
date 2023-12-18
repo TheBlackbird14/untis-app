@@ -106,7 +106,13 @@ export class FetchService {
     const foodSchedule: FoodSchedule[] = [];
 
     parsedData.forEach((element) => {
-      if (element.title === 'Menü mit Spätbucheraufschlag') return;
+      if (
+        element.title === 'Menü mit Spätbucheraufschlag' ||
+        element.title === ''
+      )
+        return;
+
+      console.log(element.dayLong);
 
       const entry = new FoodSchedule();
 
