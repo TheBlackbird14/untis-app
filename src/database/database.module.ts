@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Homework } from './homework.entity';
 import { UntisUser } from './user.entity';
 import { HomeworkState } from './homework-state.entity';
-import { FoodSchedule } from "./food-schedule.entity";
+import { FoodSchedule } from './food-schedule.entity';
 
 @Module({
   imports: [
