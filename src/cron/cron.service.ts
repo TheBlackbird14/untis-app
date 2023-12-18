@@ -21,7 +21,7 @@ export class CronService {
   }
 
   //cron job running every week on sunday at 12:00
-  @Cron('0 12 * * 0')
+  @Cron('0 20 * * 5')
   async loadFoodSchedule() {
     const now = new Date();
     console.log(

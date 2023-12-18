@@ -138,10 +138,13 @@ export class FetchService {
     });
 
     if ((await this.dbService.getFoodSchedule()).length > 0) {
-      console.log('renewing food schedule');
+      const now = new Date();
+      console.log(`--${now.toISOString()}--> Renewing Food Schedule`);
+
       await this.dbService.renewFoodSchedule(foodSchedule);
     } else {
-      console.log('storing food schedule');
+      const now = new Date();
+      console.log(`--${now.toISOString()}--> Storing Food Schedule`);
       await this.dbService.storeFoodSchedule(foodSchedule);
     }
   }
