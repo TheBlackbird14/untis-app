@@ -34,9 +34,10 @@ export class CronService {
     const days = Math.floor(
       (now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
     );
-    const weekNumber = Math.ceil(days / 7);
+    const weekNumber = Math.ceil(days / 7) + 1;
 
-    const weekString = now.getFullYear() + 'W' + weekNumber;
+    const weekString =
+      now.getFullYear() + 'W' + weekNumber.toString().padStart(2, '0');
 
     await this.fetchService.importFood(weekString);
   }
