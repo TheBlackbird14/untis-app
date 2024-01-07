@@ -102,7 +102,6 @@ export class FetchService {
     const foodItems = await getFoodItems({ kw: calendarWeek, source: 'ako' });
 
     const parsedData: FoodData[] = JSON.parse(JSON.stringify(foodItems));
-
     const foodSchedule: FoodSchedule[] = [];
 
     parsedData.forEach((element) => {
@@ -111,8 +110,6 @@ export class FetchService {
         element.title === ''
       )
         return;
-
-      console.log(element.dayLong);
 
       const entry = new FoodSchedule();
 
@@ -136,6 +133,22 @@ export class FetchService {
 
       foodSchedule.push(entry);
     });
+
+    // if no food is available, add 5 entries with the text "Kein Essen"
+
+    if (foodSchedule.length === 0) {
+      for (let i = 0; i < 5; i++) {
+        const entry = new FoodSchedule();
+        entry.text = 'Kein Essen';
+        entry.date = new Date();
+        entry.date.setDate(entry.date.getDate() + i);
+        entry.date.setHours(13);
+        entry.date.setMinutes(15);
+        entry.date.setSeconds(0);
+        entry.date.setMilliseconds(0);
+        foodSchedule.push(entry);
+      }
+    }
 
     if ((await this.dbService.getFoodSchedule()).length > 0) {
       const now = new Date();
