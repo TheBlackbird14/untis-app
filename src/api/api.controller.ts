@@ -73,9 +73,9 @@ export class ApiController {
 export class FoodApiController {
   constructor(private apiService: ApiService) {}
 
-  @Get('load')
-  async loadFoodSchedule() {
-    await this.apiService.loadFoodSchedule();
+  @Get('load/:week')
+  async loadFoodSchedule(@Param('week') week: string) {
+    await this.apiService.loadFoodSchedule(week);
   }
 
   @Get('latest')

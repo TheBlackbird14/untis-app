@@ -222,18 +222,8 @@ export class ApiService {
     }
   }
 
-  async loadFoodSchedule() {
-    const now = new Date();
-    //create a string in the format "YYYY" + "W" + "WW"
-
-    const startDate = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor(
-      (now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
-    );
-    const weekNumber = Math.ceil(days / 7) + 1;
-
-    const weekString =
-      now.getFullYear() + 'W' + weekNumber.toString().padStart(2, '0');
+  async loadFoodSchedule(week: string) {
+    const weekString = week.padStart(2, '0');
 
     await this.fetchService.importFood(weekString);
   }
