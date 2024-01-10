@@ -152,7 +152,9 @@ export class FetchService {
 
     if ((await this.dbService.getFoodSchedule()).length > 0) {
       const now = new Date();
-      console.log(`--${now.toISOString()}--> Renewing Food Schedule`);
+      console.log(
+        `--${now.toISOString()}--> Saving Food Schedule for week ${calendarWeek}`,
+      );
 
       await this.dbService.renewFoodSchedule(foodSchedule);
     } else {
