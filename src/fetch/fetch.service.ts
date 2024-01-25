@@ -57,6 +57,7 @@ export class FetchService {
 
         const homeworkEntry = new Homework();
         homeworkEntry.id = element.id;
+        homeworkEntry.text = element.text;
 
         await this.dbService.createHomeworkEntry(username, homeworkEntry);
 
