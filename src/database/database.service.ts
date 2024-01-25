@@ -53,12 +53,28 @@ export class DatabaseService {
   async createHomeworkEntry(username: string, homework: Homework) {
     const userId = (await this.getUserByUsername(username)).id;
     const check = await this.getHomeworkByID(homework.id);
-    if (check !== null) {
+
+    if (check !== null && homework.text !== undefined) {
       //homework already exists
 
-      //console.log('creating hw entry: hw already exists');
+      //check if text is the most recent version
+      if (check.text !== homework.text) {
+        // entry needs to be updated
 
-      if (check.students.find((element) => element === userId) !== undefined) {
+        try {
+          await this.homeworkRepository
+            .createQueryBuilder()
+            .update(Homework)
+            .set({ text: homework.text })
+            .where('id = :homeworkId', { homeworkId: homework.id })
+            .execute();
+        } catch (error) {
+          console.log(`error updating homework entry: ${error}`);
+          throw new HttpErrorByCode[500]();
+        }
+      } else if (
+        check.students.find((element) => element === userId) !== undefined
+      ) {
         // student is already assigned to homework
 
         //console.log('student is already assigned');
