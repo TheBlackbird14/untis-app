@@ -33,7 +33,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.17",
-    "webuntis": "^2.0.3"
+    "webuntis": "^2.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
