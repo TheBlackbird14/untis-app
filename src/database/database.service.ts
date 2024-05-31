@@ -309,7 +309,7 @@ export class DatabaseService {
         await this.foodScheduleRepository
           .createQueryBuilder()
           .update(FoodSchedule)
-          .set({ text: element.text, date: element.date })
+          .set({ text: element.text, date: element.date, probability: element.probability })
           .where('id = :i', { i: counter })
           .execute();
         counter++;

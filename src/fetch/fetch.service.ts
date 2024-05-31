@@ -108,13 +108,17 @@ export class FetchService {
     parsedData.forEach((element) => {
       if (
         element.title === 'Menü mit Spätbucheraufschlag' ||
-        element.title === ''
+        element.dayKey === undefined
       )
         return;
 
       const entry = new FoodSchedule();
 
       entry.text = element.title;
+
+      if (element.title === '') {
+        entry.text = 'Kein Essen';
+      }
 
       const dateString = element.dayLong.split(',')[1];
 
@@ -131,6 +135,10 @@ export class FetchService {
       date.setMilliseconds(0);
 
       entry.date = date;
+
+      entry.probability = [];
+
+      console.log(entry);
 
       foodSchedule.push(entry);
     });
