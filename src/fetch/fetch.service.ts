@@ -106,9 +106,11 @@ export class FetchService {
     const foodSchedule: FoodSchedule[] = [];
 
     parsedData.forEach((element) => {
+      console.log(element);
+
       if (
         element.title === 'Menü mit Spätbucheraufschlag' ||
-        element.dayKey === undefined
+        element.dayLong === undefined
       )
         return;
 
@@ -138,7 +140,7 @@ export class FetchService {
 
       entry.probability = [];
 
-      console.log(entry);
+      // console.log(entry);
 
       foodSchedule.push(entry);
     });
