@@ -55,6 +55,14 @@ export class ApiController {
     return res.send('Login Successful');
   }
 
+  @Get('logout')
+  @UseGuards(AuthGuard)
+  async logout(@Res() res: Response) {
+    res.clearCookie('authToken');
+    res.clearCookie('username');
+    return res.send('Logout Successful');
+  }
+
   @Get('homework/load')
   @UseGuards(AuthGuard)
   async loadHomework(@Req() request: Request) {

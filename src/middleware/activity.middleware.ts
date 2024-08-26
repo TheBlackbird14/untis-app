@@ -14,7 +14,7 @@ export class ActivityMiddleware implements NestMiddleware {
     @InjectRepository(UserAnalytics)
     private readonly userAnalyticRepository: Repository<UserAnalytics>,
   ) {}
-  async use(@Req() req: Request, next: NextFunction) {
+  async use(@Req() req: Request, res: Response, next: NextFunction) {
     const username = req.cookies['username'];
 
     //query the database for the user
