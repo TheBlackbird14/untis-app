@@ -12,5 +12,5 @@ export class UntisUser {
   key: string;
 
   @Column({ nullable: true })
-  iv: string;
+  dateExpires: Date;
 }

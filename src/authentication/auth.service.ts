@@ -13,7 +13,7 @@ export class AuthService {
   async login(credentials: {
     username: string;
     password: string;
-  }): Promise<string> {
+  }): Promise<{ encrypted: string; IV: string }> {
     if (
       await this.apiService.checkUserInUntis(
         credentials.username,
@@ -42,9 +42,14 @@ export class AuthService {
       throw new HttpException('Bad auth', HttpStatus.FORBIDDEN);
     }
 
+    let KEY = await this.dbService.getUserEncryption(credentials.username);
+
+    if (!KEY) {
+      KEY = crypto.randomBytes(32).toString('hex');
+    }
+
     // Generate a random key and encrypt the users credentials using aes-256-cbc encryption
 
-    const KEY = crypto.randomBytes(32).toString('hex');
     const IV = crypto.randomBytes(16).toString('hex');
 
     const phrase = btoa(
@@ -60,24 +65,24 @@ export class AuthService {
     encrypted += cipher.final('base64');
 
     // Store the encrypted credentials in the database
-    await this.dbService.saveUserEncryption(credentials.username, KEY, IV);
+    await this.dbService.saveUserEncryption(credentials.username, KEY);
 
-    return encrypted;
+    return { encrypted, IV };
   }
 
-  async validateUser(token: string, username: string) {
-    const user = await this.dbService.getUserEncryption(username);
+  async validateUser(encrypted: string, IV: string, username: string) {
+    const key = await this.dbService.getUserEncryption(username);
 
-    if (!user) {
+    if (!key) {
       return false;
     }
 
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
-      Buffer.from(user.key, 'hex'),
-      Buffer.from(user.iv, 'hex'),
+      Buffer.from(key, 'hex'),
+      Buffer.from(IV, 'hex'),
     );
-    let decrypted = decipher.update(token, 'base64', 'utf8');
+    let decrypted = decipher.update(encrypted, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
 
     const [decUsername, decPassword] = decodeURIComponent(

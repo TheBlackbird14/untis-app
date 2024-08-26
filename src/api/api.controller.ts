@@ -33,10 +33,18 @@ export class ApiController {
     @Res() res: Response,
   ) {
     // Check if the username and password are correct
-    const token = await this.authService.login(credentials);
+    const cookies = await this.authService.login(credentials);
 
     // Set the cookie with the appropriate options
-    res.cookie('authToken', token, {
+    res.cookie('authToken', cookies.encrypted, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      //max age dependent on the stayLoggedIn option
+      maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
+    res.cookie('IV', cookies.IV, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
@@ -56,9 +64,9 @@ export class ApiController {
   }
 
   @Get('logout')
-  @UseGuards(AuthGuard)
   async logout(@Res() res: Response) {
     res.clearCookie('authToken');
+    res.clearCookie('IV');
     res.clearCookie('username');
     return res.send('Logout Successful');
   }

@@ -32,12 +32,15 @@ export class DatabaseService {
     }
   }
 
-  async saveUserEncryption(username: string, KEY: string, IV: string) {
+  async saveUserEncryption(username: string, KEY: string) {
+    const dateExpires = new Date();
+    dateExpires.setDate(dateExpires.getDate() + 30);
+
     try {
       await this.userRepository
         .createQueryBuilder()
         .update(UntisUser)
-        .set({ key: KEY, iv: IV })
+        .set({ key: KEY, dateExpires: dateExpires })
         .where('username = :username', { username })
         .execute();
     } catch (error) {
@@ -46,17 +49,19 @@ export class DatabaseService {
     }
   }
 
-  async getUserEncryption(
-    username: string,
-  ): Promise<{ key: string; iv: string } | null> {
+  async getUserEncryption(username: string): Promise<string | null> {
     try {
       const result = await this.userRepository
         .createQueryBuilder('UntisUser')
-        .select(['UntisUser.key', 'UntisUser.iv'])
+        .select(['UntisUser.key', 'UntisUser.dateExpires'])
         .where('username = :username', { username })
         .getOne();
 
-      return { key: result.key, iv: result.iv };
+      if (result.dateExpires < new Date()) {
+        return null;
+      }
+
+      return result.key;
     } catch (error) {
       console.log(`error getting user encryption: ${error}`);
       return null;
