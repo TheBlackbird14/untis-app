@@ -13,6 +13,6 @@ export class FoodSchedule {
   @IsDate()
   date: Date;
 
-  @Column("int", { array: true, nullable: true })
+  @Column('int', { array: true, nullable: true })
   probability: number[];
 }

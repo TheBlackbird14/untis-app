@@ -5,18 +5,17 @@ import { Homework } from 'src/database/homework.entity';
 import { WebUntis } from 'webuntis';
 import { HomeworkDto } from './homework.dto';
 import { createHomeworkDto } from './create-homework.dto';
-import { EncryptionService } from '../encryption/encryption.service';
 
 @Injectable()
 export class ApiService {
   constructor(
     private fetchService: FetchService,
     private dbService: DatabaseService,
-    private encryptionService: EncryptionService,
   ) {}
 
-  async loadHomework(authHeader: any) {
-    const [username, password] = this.decodeAuthHeader(authHeader);
+  async loadHomework(credentials: { username: string; password: string }) {
+    const username = credentials.username;
+    const password = credentials.password;
 
     if (await this.checkUserInUntis(username, password)) {
       //if auth works in untis
@@ -41,37 +40,12 @@ export class ApiService {
 
     await this.fetchService.importHomework(username, password);
   }
-
-  decodeAuthHeader(authHeader: any): [string, string] {
-    if (authHeader) {
-      let iv: string;
-      let credentials: string;
-
-      try {
-        iv = authHeader.slice(-32);
-        credentials = authHeader.slice(0, -32);
-      } catch (error) {
-        console.log(`error separating auth: ${error}`);
-        throw new HttpException('encryption invalid', 400);
-      }
-
-      authHeader = this.encryptionService.decryptString(credentials, iv);
-
-      // Parse or manipulate the authentication header
-      //const [, authValue] = authHeader.split(' ');
-      const decodedAuth = Buffer.from(authHeader, 'base64').toString('utf-8');
-      const [username, password] = decodedAuth.split(':');
-
-      //check if username has two capital letters
-
-      return [username.toLowerCase(), password];
-    } else {
-      throw new HttpException('No auth supplied.', HttpStatus.FORBIDDEN);
-    }
-  }
-
-  async getAllHomework(authHeader: any): Promise<HomeworkDto[]> {
-    const [username, password] = this.decodeAuthHeader(authHeader);
+  async getAllHomework(credentials: {
+    username: string;
+    password: string;
+  }): Promise<HomeworkDto[]> {
+    const username = credentials.username;
+    const password = credentials.password;
 
     if (await this.checkUserInUntis(username, password)) {
       //if auth works in untis
@@ -118,7 +92,11 @@ export class ApiService {
     }
   }
 
-  async updateEntry(authHeader: any, id: number, data: any) {
+  async updateEntry(
+    credentials: { username: string; password: string },
+    id: number,
+    data: any,
+  ) {
     const lowerLimit = -2147483648; // Minimum value of PostgreSQL integer
     const upperLimit = 2147483647; // Maximum value of PostgreSQL integer
 
@@ -130,12 +108,14 @@ export class ApiService {
       throw new HttpException('Homework with that ID does not exist', 404);
     }
 
-    const [username, password] = this.decodeAuthHeader(authHeader);
+    const username = credentials.username;
+    const password = credentials.password;
+
     if (await this.checkUserInUntis(username, password)) {
       //if auth works in untis
-      const user = await this.dbService.getUserByUsername(username);
+      const untisUser = await this.dbService.getUserByUsername(username);
 
-      await this.dbService.update(user, id, data);
+      await this.dbService.update(untisUser, id, data);
     } else {
       throw new HttpException('bad auth', HttpStatus.FORBIDDEN);
     }
@@ -167,8 +147,12 @@ export class ApiService {
     return true;
   }
 
-  async createHomework(homeworkDto: createHomeworkDto, authHeader: any) {
-    const [username, password] = this.decodeAuthHeader(authHeader);
+  async createHomework(
+    credentials: { username: string; password: string },
+    homeworkDto: createHomeworkDto,
+  ) {
+    const username = credentials.username;
+    const password = credentials.password;
 
     if (await this.checkUserInUntis(username, password)) {
       if (await this.checkUserInDB(username)) {
@@ -200,7 +184,10 @@ export class ApiService {
     }
   }
 
-  async deleteEntry(id: number, authHeader: any) {
+  async deleteEntry(
+    credentials: { username: string; password: string },
+    id: number,
+  ) {
     const lowerLimit = -2147483648; // Minimum value of PostgreSQL integer
     if (id >= 0 || id <= lowerLimit) {
       throw new HttpException('ID value not valid', 400);
@@ -210,7 +197,9 @@ export class ApiService {
       throw new HttpException('Homework with that ID does not exist', 404);
     }
 
-    const [username, password] = this.decodeAuthHeader(authHeader);
+    const username = credentials.username;
+    const password = credentials.password;
+
     if (await this.checkUserInUntis(username, password)) {
       const now = new Date();
       console.log(

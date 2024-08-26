@@ -7,65 +7,112 @@ import {
   Post,
   Put,
   Req,
+  Res,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { ApiService } from './api.service';
 import { MarkCompleted } from './completion.dto';
 import { HomeworkDto } from './homework.dto';
 import { createHomeworkDto } from './create-homework.dto';
+import { AuthService } from '../authentication/auth.service';
+import { AuthGuard } from '../authentication/auth.guard';
 
 @Controller('api')
 export class ApiController {
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService,
+  ) {}
+
+  @Post('login')
+  async login(
+    @Body()
+    credentials: { username: string; password: string; stayLoggedIn: boolean },
+    @Res() res: Response,
+  ) {
+    // Check if the username and password are correct
+    const token = await this.authService.login(credentials);
+
+    // Set the cookie with the appropriate options
+    res.cookie('authToken', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      //max age dependent on the stayLoggedIn option
+      maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
+    res.cookie('username', credentials.username, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'strict',
+      //max age dependent on the stayLoggedIn option
+      maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
+    return res.send('Login Successful');
+  }
 
   @Get('homework/load')
+  @UseGuards(AuthGuard)
   async loadHomework(@Req() request: Request) {
-    // Accessing headers for authentication information
-    const authHeader = request.headers['authorization'];
+    const username = request.cookies['username'];
+    const password = request.cookies['password'];
 
-    await this.apiService.loadHomework(authHeader);
+    await this.apiService.loadHomework({ username, password });
   }
 
   @Get('homework/all')
+  @UseGuards(AuthGuard)
   async getAllHomework(@Req() request: Request): Promise<HomeworkDto[]> {
-    // Accessing headers for authentication information
-    const authHeader = request.headers['authorization'];
+    const username = request.cookies['username'];
+    const password = request.cookies['password'];
 
-    return await this.apiService.getAllHomework(authHeader);
+    return await this.apiService.getAllHomework({ username, password });
   }
 
   @Put('homework/:id')
+  @UseGuards(AuthGuard)
   async markCompleted(
     @Param('id', new ParseIntPipe()) id: number,
     @Body(new ValidationPipe({ transform: true })) markCompleted: MarkCompleted,
     @Req() request: Request,
   ) {
-    // Accessing headers for authentication information
-    const authHeader = request.headers['authorization'];
+    const username = request.cookies['username'];
+    const password = request.cookies['password'];
 
-    await this.apiService.updateEntry(authHeader, id, markCompleted);
+    await this.apiService.updateEntry(
+      { username, password },
+      id,
+      markCompleted,
+    );
   }
 
   @Post('homework/create')
+  @UseGuards(AuthGuard)
   async createHomework(
     @Body(new ValidationPipe({ transform: true }))
     homework: createHomeworkDto,
     @Req() request: Request,
   ) {
-    // Accessing headers for authentication information
-    const authHeader = request.headers['authorization'];
+    const username = request.cookies['username'];
+    const password = request.cookies['password'];
 
-    await this.apiService.createHomework(homework, authHeader);
+    await this.apiService.createHomework({ username, password }, homework);
   }
 
   @Get('homework/delete/:id')
+  @UseGuards(AuthGuard)
   async deleteEntry(
     @Param('id', new ParseIntPipe()) id: number,
     @Req() request: Request,
   ) {
-    const authHeader = request.headers['authorization'];
+    const username = request.cookies['username'];
+    const password = request.cookies['password'];
 
-    await this.apiService.deleteEntry(id, authHeader);
+    await this.apiService.deleteEntry({ username, password }, id);
   }
 }
 
@@ -74,11 +121,13 @@ export class FoodApiController {
   constructor(private apiService: ApiService) {}
 
   @Get('load/:week')
+  @UseGuards(AuthGuard)
   async loadFoodSchedule(@Param('week') week: string) {
     await this.apiService.loadFoodSchedule(week);
   }
 
   @Get('latest')
+  @UseGuards(AuthGuard)
   async getLatestFoodSchedule() {
     return await this.apiService.getFoodSchedule();
   }

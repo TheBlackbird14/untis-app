@@ -32,6 +32,37 @@ export class DatabaseService {
     }
   }
 
+  async saveUserEncryption(username: string, KEY: string, IV: string) {
+    try {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(UntisUser)
+        .set({ key: KEY, iv: IV })
+        .where('username = :username', { username })
+        .execute();
+    } catch (error) {
+      console.log(`error saving user encryption: ${error}`);
+      throw new HttpErrorByCode[500]();
+    }
+  }
+
+  async getUserEncryption(
+    username: string,
+  ): Promise<{ key: string; iv: string } | null> {
+    try {
+      const result = await this.userRepository
+        .createQueryBuilder('UntisUser')
+        .select(['UntisUser.key', 'UntisUser.iv'])
+        .where('username = :username', { username })
+        .getOne();
+
+      return { key: result.key, iv: result.iv };
+    } catch (error) {
+      console.log(`error getting user encryption: ${error}`);
+      return null;
+    }
+  }
+
   async getUserByUsername(username: string): Promise<UntisUser | null> {
     let user: UntisUser;
     try {
@@ -309,7 +340,11 @@ export class DatabaseService {
         await this.foodScheduleRepository
           .createQueryBuilder()
           .update(FoodSchedule)
-          .set({ text: element.text, date: element.date, probability: element.probability })
+          .set({
+            text: element.text,
+            date: element.date,
+            probability: element.probability,
+          })
           .where('id = :i', { i: counter })
           .execute();
         counter++;
