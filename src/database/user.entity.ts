@@ -7,4 +7,10 @@ export class UntisUser {
 
   @Column()
   username: string;
+
+  @Column({ nullable: true })
+  key: string;
+
+  @Column({ nullable: true })
+  dateExpires: Date;
 }

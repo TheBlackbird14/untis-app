@@ -1,31 +1,27 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Injectable, NestMiddleware, Req } from '@nestjs/common';
+import { Request, NextFunction } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserAnalytics } from './user-analytics.entity';
 import { Repository } from 'typeorm';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
-import { ApiService } from '../api/api.service';
 import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class ActivityMiddleware implements NestMiddleware {
   constructor(
-    private apiService: ApiService,
     private databaseService: DatabaseService,
     @InjectRepository(UserAnalytics)
     private readonly userAnalyticRepository: Repository<UserAnalytics>,
   ) {}
-  async use(req: Request, res: Response, next: NextFunction) {
-    const credentials = this.apiService.decodeAuthHeader(
-      req.headers['authorization'],
-    );
+  async use(@Req() req: Request, res: Response, next: NextFunction) {
+    const username = req.cookies['username'];
 
     //query the database for the user
     let user: UserAnalytics;
     try {
       user = await this.userAnalyticRepository.findOneBy({
-        username: credentials[0],
+        username: username,
       });
     } catch (error) {
       console.log(`error finding Analytic user: ${error}`);
@@ -37,13 +33,13 @@ export class ActivityMiddleware implements NestMiddleware {
 
       try {
         new_user.id = (
-          await this.databaseService.getUserByUsername(credentials[0])
+          await this.databaseService.getUserByUsername(username)
         ).id;
       } catch (error) {
         next();
       }
 
-      new_user.username = credentials[0];
+      new_user.username = username;
 
       try {
         await this.userAnalyticRepository.insert(new_user);
@@ -71,7 +67,7 @@ export class ActivityMiddleware implements NestMiddleware {
         .createQueryBuilder()
         .update(UserAnalytics)
         .set({ [column]: now })
-        .where('username = :username', { username: credentials[0] })
+        .where('username = :username', { username: username })
         .execute();
     } catch (error) {
       console.log(`error updating Analytic user: ${error}`);
@@ -80,7 +76,7 @@ export class ActivityMiddleware implements NestMiddleware {
 
     try {
       await this.userAnalyticRepository.findOneBy({
-        username: credentials[0],
+        username: username,
       });
     } catch (error) {
       console.log(`error finding Analytic user: ${error}`);

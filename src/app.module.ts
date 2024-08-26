@@ -14,8 +14,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { CronService } from './cron/cron.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { EncryptionService } from './encryption/encryption.service';
-import { EncryptionModule } from './encryption/encryption.module';
 import { ConfigModule } from '@nestjs/config';
 
 import { ActivityMiddleware } from './middleware/activity.middleware';
@@ -31,12 +29,11 @@ import { MiddlewareModule } from './middleware/middleware.module';
     TypeOrmModule.forRoot(typeOrmConfig),
     TypeOrmModule.forFeature([UserAnalytics]),
     ScheduleModule.forRoot(),
-    EncryptionModule,
     ConfigModule,
     ConfigModule.forRoot(),
     MiddlewareModule,
   ],
-  providers: [AppService, CronService, EncryptionService],
+  providers: [AppService, CronService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

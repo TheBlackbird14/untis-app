@@ -32,6 +32,42 @@ export class DatabaseService {
     }
   }
 
+  async saveUserEncryption(username: string, KEY: string) {
+    const dateExpires = new Date();
+    dateExpires.setDate(dateExpires.getDate() + 30);
+
+    try {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(UntisUser)
+        .set({ key: KEY, dateExpires: dateExpires })
+        .where('username = :username', { username })
+        .execute();
+    } catch (error) {
+      console.log(`error saving user encryption: ${error}`);
+      throw new HttpErrorByCode[500]();
+    }
+  }
+
+  async getUserEncryption(username: string): Promise<string | null> {
+    try {
+      const result = await this.userRepository
+        .createQueryBuilder('UntisUser')
+        .select(['UntisUser.key', 'UntisUser.dateExpires'])
+        .where('username = :username', { username })
+        .getOne();
+
+      if (result.dateExpires < new Date()) {
+        return null;
+      }
+
+      return result.key;
+    } catch (error) {
+      console.log(`error getting user encryption: ${error}`);
+      return null;
+    }
+  }
+
   async getUserByUsername(username: string): Promise<UntisUser | null> {
     let user: UntisUser;
     try {
@@ -309,7 +345,11 @@ export class DatabaseService {
         await this.foodScheduleRepository
           .createQueryBuilder()
           .update(FoodSchedule)
-          .set({ text: element.text, date: element.date, probability: element.probability })
+          .set({
+            text: element.text,
+            date: element.date,
+            probability: element.probability,
+          })
           .where('id = :i', { i: counter })
           .execute();
         counter++;
