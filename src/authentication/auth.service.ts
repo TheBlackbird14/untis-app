@@ -14,27 +14,23 @@ export class AuthService {
     username: string;
     password: string;
   }): Promise<{ encrypted: string; IV: string }> {
-    if (
-      await this.apiService.checkUserInUntis(
-        credentials.username,
-        credentials.password,
-      )
-    ) {
+    const username = credentials.username.toLowerCase();
+    const password = credentials.password;
+
+    if (await this.apiService.checkUserInUntis(username, password)) {
       //if auth works in untis
 
       //console.log('passed auth');
 
-      if (!(await this.apiService.checkUserInDB(credentials.username))) {
+      if (!(await this.apiService.checkUserInDB(username))) {
         //if user is not yet registered
 
         //console.log('user not yet registered');
 
         const now = new Date();
-        console.log(
-          `--${now.toISOString()}--> Creating new user ${credentials.username}`,
-        );
+        console.log(`--${now.toISOString()}--> Creating new user ${username}`);
 
-        await this.dbService.createUser(credentials.username);
+        await this.dbService.createUser(username);
       } else {
         //console.log('user already registered');
       }
@@ -42,7 +38,7 @@ export class AuthService {
       throw new HttpException('Bad auth', HttpStatus.FORBIDDEN);
     }
 
-    let KEY = await this.dbService.getUserEncryption(credentials.username);
+    let KEY = await this.dbService.getUserEncryption(username);
 
     if (!KEY) {
       KEY = crypto.randomBytes(32).toString('hex');
@@ -52,9 +48,7 @@ export class AuthService {
 
     const IV = crypto.randomBytes(16).toString('hex');
 
-    const phrase = btoa(
-      encodeURIComponent(`${credentials.username}:${credentials.password}`),
-    );
+    const phrase = btoa(encodeURIComponent(`${username}:${password}`));
 
     const cipher = crypto.createCipheriv(
       'aes-256-cbc',
@@ -65,7 +59,7 @@ export class AuthService {
     encrypted += cipher.final('base64');
 
     // Store the encrypted credentials in the database
-    await this.dbService.saveUserEncryption(credentials.username, KEY);
+    await this.dbService.saveUserEncryption(username, KEY);
 
     return { encrypted, IV };
   }

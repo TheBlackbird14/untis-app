@@ -23,14 +23,14 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('No auth token found');
     }
 
-    const username = request.cookies['username'];
+    const username = request.cookies['username'].toLowerCase();
 
     const user = await this.authService.validateUser(encrypted, IV, username);
     if (!user) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    request.cookies['username'] = user.username;
+    request.cookies['username'] = user.username.toLowerCase();
     request.cookies['password'] = user.password;
 
     return true; // Allow access
