@@ -40,6 +40,8 @@ export class ApiController {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
       //max age dependent on the stayLoggedIn option
       maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
     });
@@ -48,6 +50,8 @@ export class ApiController {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
       //max age dependent on the stayLoggedIn option
       maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
     });
@@ -56,6 +60,18 @@ export class ApiController {
       httpOnly: false,
       secure: true,
       sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
+      //max age dependent on the stayLoggedIn option
+      maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
+    res.cookie('stayLoggedIn', credentials.stayLoggedIn, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
       //max age dependent on the stayLoggedIn option
       maxAge: credentials.stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
     });
@@ -64,10 +80,47 @@ export class ApiController {
   }
 
   @Get('logout')
-  async logout(@Res() res: Response) {
-    res.clearCookie('authToken');
-    res.clearCookie('IV');
-    res.clearCookie('username');
+  async logout(@Req() req: Request, @Res() res: Response) {
+    const stayLoggedIn = req.cookies['stayLoggedIn'];
+
+    res.clearCookie('authToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
+      //max age dependent on the stayLoggedIn option
+      maxAge: stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+    res.clearCookie('IV', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
+      //max age dependent on the stayLoggedIn option
+      maxAge: stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+    res.clearCookie('username', {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
+      //max age dependent on the stayLoggedIn option
+      maxAge: stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
+    res.clearCookie('stayLoggedIn', {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'strict',
+      domain: '.hausaufgaben.live',
+      path: '/',
+      //max age dependent on the stayLoggedIn option
+      maxAge: stayLoggedIn ? 30 * 24 * 60 * 60 * 1000 : undefined,
+    });
+
     return res.send('Logout Successful');
   }
 
