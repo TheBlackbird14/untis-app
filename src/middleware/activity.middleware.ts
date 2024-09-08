@@ -17,6 +17,10 @@ export class ActivityMiddleware implements NestMiddleware {
   async use(@Req() req: Request, res: Response, next: NextFunction) {
     const username = req.cookies['username'].toLowerCase();
 
+    if (username === "") {
+      next();
+    }
+
     //query the database for the user
     let user: UserAnalytics;
     try {
