@@ -21,7 +21,7 @@ export class FetchService {
       'aloisiuskolleg',
       username,
       password,
-      'peleus.webuntis.com',
+      'aloisiuskolleg.webuntis.com',
     );
 
     await this.untis.login();
