@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 async function bootstrap() {
   // Set up CORS options
